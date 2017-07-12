@@ -47,9 +47,9 @@ function starteRednerliste (rede) {
 // Funktion um Daten an Microsoft zu schicken nachdem Bild geklickt wurde
 function analyzeImg(pictureLink, caption, comments, likes) {
     // initial voice output, auch um ein wenig wartezeit zu überbrücken...
-    if (caption) starteRednerliste('The caption of the picture is '+ caption);
-    if (comments > 0) starteRednerliste('There are '+ comments + 'comments.');
-    if (likes > 0) starteRednerliste('There are '+ likes + 'likes.');
+    if (caption) starteRednerliste('The caption of the picture is '+ caption + '.');
+    if (comments > 0) starteRednerliste('There are '+ comments + ' comments.');
+    if (likes > 0) starteRednerliste('There are '+ likes + ' likes.');
 
     // Und ab geht die Post zur face+emotion detection
     sendToMicrosoftVision (pictureLink);
