@@ -34,7 +34,8 @@ function starteRednerliste (rede) {
         console.log('++ Rednerliste updatet, now: '+ rednerliste);
     }
     else {
-        responsiveVoice.speak(rede + ' ' + rednerliste);
+        var workaround = rede + ' ' + rednerliste;
+        responsiveVoice.speak(workaround);
         rednerliste = '';
         console.log('++ Rednerliste gecleared');
     }
@@ -51,8 +52,12 @@ function analyzeImg(pictureLink, caption, comments, likes) {
     sendToMicrosoftVision (pictureLink);
     sendToMicrosoftFace (pictureLink);
 
-    // falls nu was auf der Rednerliste steht.
-    starteRednerliste(' ');
+    ///// FUCKING BUGFIX EINFÜGEN /////
+    /////// starteRednerliste ('');
+    //// starterednerliste muss ganz am schluss, wenn bereits alles gesagt wurde nochmal ausgeführt werden 
+    /// problem: darf erst passieren wenn zu ende gesprochen wurde
+    ///// (falls während er spricht die rednerliste geupdatet wird - dann wäre noch was im stack, aber er redet ja noch und kommt nimma dazu danach)
+    ///// des mitn callback geht ned weil die libary arschloch fehler hat
 }
 
 // Audio Output VisionData
