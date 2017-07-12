@@ -9,34 +9,42 @@
 		body {
 			padding: 30px;
 			font-family: 'Roboto', sans-serif;
+			background-color: salmon;
 		}
-		a:visited {
-			text-decoration: none;
-			color: rgb(0, 0, 238);
+		h1, h2 {
+			text-align: center;
+			margin-bottom: 40px;
+		}
+		#instafeed {
+			width: 100%;
+    		text-align: center;
+		}
+		.picture {
+			margin-top: 20px;
+    		margin-bottom: 20px;
+		}
+		img {
+			width: 80%;
+    		max-width: 500px;
+			border-radius:11%;
 		}
 	</style>
 </head>
 
 <body>
-
-	<input onclick="responsiveVoice.speak('Hello World, this is a test string.');" type="button" value="Play" />
-	<input onclick="sendToMicrosoftVision ('https://scontent.cdninstagram.com/t51.2885-15/s320x320/e35/19534382_288973094900245_7594904168322564096_n.jpg');" type="button" value="TestVisonOutput on 1. item" />
-	<input onclick="sendToMicrosoftFace ('https://scontent.cdninstagram.com/t51.2885-15/s320x320/e35/19534382_288973094900245_7594904168322564096_n.jpg');" type="button" value="TestFaceOutput on 1. item" />
-	<input onclick="sendToMicrosoftVision ('https://scontent.cdninstagram.com/t51.2885-15/s320x320/e35/19533645_1934831970130339_5896664805174935552_n.jpg');" type="button" value="TestVisonOutput on xy. item" />
-	<input onclick="sendToMicrosoftFace ('https://scontent.cdninstagram.com/t51.2885-15/s320x320/e35/19533645_1934831970130339_5896664805174935552_n.jpg');" type="button" value="TestFaceOutput on xy. item" />
-
 	<!-- container for instafeed -->
-	<h1>Sexy images from account 'fak30r'</h1>
+	<h1>Instagramfeed from account 'fak30r'</h1>
+	<h2>Click on Picture and wait some secounds to hear output</h2>
 	<div id="instafeed">
 	</div>
 
+	<!-- alle schönen skripts die wir brauchen -->
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
 	 crossorigin="anonymous"></script>
 	<script src="js/instafeed.min.js"></script>
 	<script src="js/scripts.js"></script>
-
-	<!-- TTS -->
-	<script src="https://code.responsivevoice.org/responsivevoice.js"></script>
+	<script src="js/responsivevoice.js"></script>
+	<!-- <script src="https://code.responsivevoice.org/responsivevoice.js"></script>-->
 	<!-- <script src='//vws.responsivevoice.com/v/e?key=o92f27qD'></script> -->
 
 </body>

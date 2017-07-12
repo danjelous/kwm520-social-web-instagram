@@ -19,10 +19,55 @@ var feed = new Instafeed({
     get: 'user',
     userId: '5663183675',
     accessToken: '5663183675.6bcdfd3.4faacb05423041ea9e2a80e4c873b867',
-    template: '<div class="item"><h2 style="margin-top: 30px">{{caption}}</h2><a href="{{link}}"><img src="{{image}}" /></a><a href="{{image}}" target="_blank" style="display: block;">Image source: {{image}}</a><hr></div>',
+    template: '<div class="picture"><img src="{{image}}" onclick="analyzeImg(\'{{image}}\',\'{{caption}}\',\'{{comments}}\',\'{{likes}}\');" /></div>',
+    //template: '<div class="item"><h2 style="margin-top: 30px">{{caption}}</h2><a href="{{link}}"><img src="{{image}}" /></a><a href="{{image}}" target="_blank" style="display: block;">Image source: {{image}}</a><hr></div>',
     resolution: 'low_resolution'
 });
 feed.run();
+
+// Falls gerade gesprochen wird kann man ja ned gleichzeitig reden, also gibts ne rednerliste
+var rednerliste = '';
+
+function starteRednerliste (rede) {
+    if(responsiveVoice.isPlaying()) {
+        rednerliste = rednerliste + ' ' + rede;
+        console.log('++ Rednerliste updatet, now: '+ rednerliste);
+    }
+    else {
+        responsiveVoice.speak(rede + ' ' + rednerliste);
+        rednerliste = '';
+        console.log('++ Rednerliste gecleared');
+    }
+}
+
+// Funktion um Daten an Microsoft zu schicken nachdem Bild geklickt wurde
+function analyzeImg(pictureLink, caption, comments, likes) {
+    // initial voice output, auch um ein wenig wartezeit zu überbrücken...
+    if (caption) starteRednerliste('The caption of the picture is '+ caption);
+    if (comments > 0) starteRednerliste('There are '+ comments + 'comments.');
+    if (likes > 0) starteRednerliste('There are '+ likes + 'likes.');
+
+    // Und ab geht die Post zur face+emotion detection
+    sendToMicrosoftVision (pictureLink);
+    sendToMicrosoftFace (pictureLink);
+
+    // falls nu was auf der Rednerliste steht.
+    starteRednerliste(' ');
+}
+
+// Audio Output VisionData
+function audioOutputVision (data) {
+    if (data != null) {
+        starteRednerliste('I love javascript.');
+    }
+}
+
+// Audio Output FaceData
+function audioOutputFace (data) {
+    if (data.length > 0) {
+        starteRednerliste('I hate phyton.');
+    }
+}
 
 // Vision API
 // send to microsoft api
@@ -47,6 +92,7 @@ function sendToMicrosoftVision (pictureLink) {
         .done(function (data) {
             console.log("##### WEBREQUEST SUCCESS: RESPONSE: #####");
             console.log(data);
+            audioOutputVision(data);
             //$('#overlay').css('display','none');
             //draw(data);
         })
@@ -80,6 +126,7 @@ function sendToMicrosoftFace (pictureLink) {
         .done(function (data) {
             console.log("##### WEBREQUEST SUCCESS: RESPONSE: #####");
             console.log(data);
+            audioOutputFace(data);
             //$('#overlay').css('display','none');
             //draw(data);
         })
@@ -89,7 +136,6 @@ function sendToMicrosoftFace (pictureLink) {
             //$('#overlay').css('display','none');
         });
 }
-
 
 //draw img @postion from response
 function draw (data) {
