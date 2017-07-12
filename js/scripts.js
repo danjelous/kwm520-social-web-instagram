@@ -59,14 +59,18 @@ function analyzeImg(pictureLink, caption, comments, likes) {
 // Audio Output VisionData
 function audioOutputVision (data) {
     if (data != null) {
-        starteRednerliste('I love javascript.');
+        // TODO for Dani
+        // Hier aus dem data object (output von microsoft) einen Satz bilden, und den an die starteRednerliste schicken
+        starteRednerliste('Here is the english output sentence for Microsoft Vision API Object Response');
     }
 }
 
 // Audio Output FaceData
 function audioOutputFace (data) {
     if (data.length > 0) {
-        starteRednerliste('I hate phyton.');
+        // TODO for Dani
+        // Hier aus dem data object (output von microsoft) einen Satz bilden, und den an die starteRednerliste schicken
+        starteRednerliste('Here is the english output sentence for Microsoft Face API Object Response');
     }
 }
 
