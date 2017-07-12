@@ -35,7 +35,10 @@ function starteRednerliste (rede) {
     }
     else {
         var workaround = rede + ' ' + rednerliste;
-        responsiveVoice.speak(workaround);
+        responsiveVoice.speak(workaround, 'UK English Male', {onend: function(){
+            // starte funktion "starteRednerListe" solange, bis nix mehr zu sagen gibt
+            if ((rednerliste != '' ) && (rednerliste != ' ')) starteRednerliste ('');
+        }});
         rednerliste = '';
         console.log('++ Rednerliste gecleared');
     }
@@ -51,13 +54,6 @@ function analyzeImg(pictureLink, caption, comments, likes) {
     // Und ab geht die Post zur face+emotion detection
     sendToMicrosoftVision (pictureLink);
     sendToMicrosoftFace (pictureLink);
-
-    ///// FUCKING BUGFIX EINFÜGEN /////
-    /////// starteRednerliste ('');
-    //// starterednerliste muss ganz am schluss, wenn bereits alles gesagt wurde nochmal ausgeführt werden 
-    /// problem: darf erst passieren wenn zu ende gesprochen wurde
-    ///// (falls während er spricht die rednerliste geupdatet wird - dann wäre noch was im stack, aber er redet ja noch und kommt nimma dazu danach)
-    ///// des mitn callback geht ned weil die libary arschloch fehler hat
 }
 
 // Audio Output VisionData
