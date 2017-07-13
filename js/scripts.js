@@ -35,12 +35,20 @@ function starteRednerliste (rede) {
     }
     else {
         var workaround = rede + ' ' + rednerliste;
-        responsiveVoice.speak(workaround, 'UK English Male', {onend: function(){
-            // starte funktion "starteRednerListe" solange, bis nix mehr zu sagen gibt
-            if ((rednerliste != '' ) && (rednerliste != ' ')) starteRednerliste ('');
-        }});
-        rednerliste = '';
-        console.log('++ Rednerliste gecleared');
+        responsiveVoice.speak(workaround, 'UK English Male', {
+            onstart: function(){
+                rednerliste = '';
+                console.log('!!! start');
+            },
+            onend: function(){
+                // starte funktion "starteRednerListe" solange, bis nix mehr zu sagen gibt
+                if ((rednerliste != '' ) && (rednerliste != ' ')) {
+                    console.log('!!! stop but again');
+                    starteRednerliste ('');
+                }
+                console.log('!!! stop finally');
+            }
+        });
     }
 }
 
@@ -61,7 +69,15 @@ function audioOutputVision (data) {
     if (data != null) {
         // TODO for Dani
         // Hier aus dem data object (output von microsoft) einen Satz bilden, und den an die starteRednerliste schicken
-        starteRednerliste('Here is the english output sentence for Microsoft Vision API Object Response');
+        //starteRednerliste('Here is the english output sentence for Microsoft Vision API Object Response');
+
+        // Example
+        var keywordliste = '';
+        for (var i = 0; i < data.tags.length; i++) {
+           keywordliste = keywordliste + data.tags[i].name + '. ';
+           if (i == 5) break;
+        }
+        if (keywordliste) starteRednerliste ('The Picture can be described by keywords like: '+ keywordliste);
     }
 }
 
@@ -70,7 +86,23 @@ function audioOutputFace (data) {
     if (data.length > 0) {
         // TODO for Dani
         // Hier aus dem data object (output von microsoft) einen Satz bilden, und den an die starteRednerliste schicken
-        starteRednerliste('Here is the english output sentence for Microsoft Face API Object Response');
+        // starteRednerliste('Here is the english output sentence for Microsoft Face API Object Response');
+
+        //Example
+        switch(data.length > 1) {
+            case true:
+                starteRednerliste('There are '+ data.length + ' people visible on this picture.');
+                break;
+            case false:
+                starteRednerliste('There is 1 person visible on this picture.');
+                break;
+            default:
+                break;
+        }
+        
+        for (var i = 0; i < data.length; i++) {
+           starteRednerliste('Person '+ (i+1) + ' is probably ' + Math.round(data[i].faceAttributes.age) + ' years old.');  
+        }
     }
 }
 
@@ -142,28 +174,28 @@ function sendToMicrosoftFace (pictureLink) {
         });
 }
 
-//draw img @postion from response
-function draw (data) {
-    for (var i = 0; i<data.length; i++) {
-        var face = $("<img>").attr('src', returnImgString(data[i])).attr('class', 'emoji').css(
-            {
-                "left": data[i].faceRectangle.left/scaleFactor(),
-                "top": data[i].faceRectangle.top/scaleFactor(),
-                "width" : data[i].faceRectangle.width/scaleFactor()
-            });
-        $('#result').append(face);
-        console.log ("scale = " + scaleFactor())
-    }
-}
+// //draw img @postion from response
+// function draw (data) {
+//     for (var i = 0; i<data.length; i++) {
+//         var face = $("<img>").attr('src', returnImgString(data[i])).attr('class', 'emoji').css(
+//             {
+//                 "left": data[i].faceRectangle.left/scaleFactor(),
+//                 "top": data[i].faceRectangle.top/scaleFactor(),
+//                 "width" : data[i].faceRectangle.width/scaleFactor()
+//             });
+//         $('#result').append(face);
+//         console.log ("scale = " + scaleFactor())
+//     }
+// }
 
-//return Img String to use
-function returnImgString (person) {
-    return 'img/'+returnEmotion(person.scores)+'.png';
-}
+// //return Img String to use
+// function returnImgString (person) {
+//     return 'img/'+returnEmotion(person.scores)+'.png';
+// }
 
-//return closest emotion value
-function returnEmotion (scores) {
-    var max = Math.max.apply(null,Object.keys(scores).map(function(x){ return scores[x] }));
-    var emotion = Object.keys(scores).filter(function(x){ return scores[x] == max; })[0];
-    return emotion;
-}
+// //return closest emotion value
+// function returnEmotion (scores) {
+//     var max = Math.max.apply(null,Object.keys(scores).map(function(x){ return scores[x] }));
+//     var emotion = Object.keys(scores).filter(function(x){ return scores[x] == max; })[0];
+//     return emotion;
+// }
