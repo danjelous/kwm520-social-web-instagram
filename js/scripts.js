@@ -28,40 +28,27 @@ feed.run();
 // Falls gerade gesprochen wird kann man ja ned gleichzeitig reden, also gibts ne rednerliste
 var rednerliste = '';
 
+// hier zusammenbauen
 function starteRednerliste (rede) {
-    if(responsiveVoice.isPlaying()) {
-        rednerliste = rednerliste + ' ' + rede;
-        console.log('++ Rednerliste updatet, now: '+ rednerliste);
-    }
-    else {
-        var workaround = rede + ' ' + rednerliste;
-        responsiveVoice.speak(workaround, 'UK English Male', {
-            onstart: function(){
-                rednerliste = '';
-                console.log('!!! start');
-            },
-            onend: function(){
-                // starte funktion "starteRednerListe" solange, bis nix mehr zu sagen gibt
-                if ((rednerliste != '' ) && (rednerliste != ' ')) {
-                    console.log('!!! stop but again');
-                    starteRednerliste ('');
-                }
-                console.log('!!! stop finally');
-            }
-        });
-    }
+    rednerliste = rednerliste + ' ' + rede;
 }
 
 // Funktion um Daten an Microsoft zu schicken nachdem Bild geklickt wurde
 function analyzeImg(pictureLink, caption, comments, likes) {
-    // initial voice output, auch um ein wenig wartezeit zu überbrücken...
+    // initial voice output from instagram
     if (caption) starteRednerliste('The caption of the picture is '+ caption + '.');
     if (comments > 0) starteRednerliste('There are '+ comments + ' comments.');
     if (likes > 0) starteRednerliste('There are '+ likes + ' likes.');
 
     // Und ab geht die Post zur face+emotion detection
-    sendToMicrosoftVision (pictureLink);
-    sendToMicrosoftFace (pictureLink);
+    var q1 = sendToMicrosoftVision (pictureLink);
+    var q2 =  sendToMicrosoftFace (pictureLink);
+
+    // wenn die Herren fertig sind, dann starte die rednerliste
+    $.when(q1, q2).then(function(result){
+        responsiveVoice.speak(rednerliste);
+        rednerliste = '';
+    });
 }
 
 // Audio Output VisionData
@@ -110,7 +97,7 @@ function audioOutputFace (data) {
 // send to microsoft api
 
 function sendToMicrosoftVision (pictureLink) {
-    $.ajax({
+    return $.ajax({
             url: "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Categories,Tags,Description,Faces,ImageType,Color,Adult",
             beforeSend: function (xhrObj) {
                 // Request headers
@@ -144,7 +131,7 @@ function sendToMicrosoftVision (pictureLink) {
 // send to microsoft api
 
 function sendToMicrosoftFace (pictureLink) {
-    $.ajax({
+    return $.ajax({
             url: "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure",
             beforeSend: function (xhrObj) {
                 // Request headers
@@ -173,29 +160,3 @@ function sendToMicrosoftFace (pictureLink) {
             //$('#overlay').css('display','none');
         });
 }
-
-// //draw img @postion from response
-// function draw (data) {
-//     for (var i = 0; i<data.length; i++) {
-//         var face = $("<img>").attr('src', returnImgString(data[i])).attr('class', 'emoji').css(
-//             {
-//                 "left": data[i].faceRectangle.left/scaleFactor(),
-//                 "top": data[i].faceRectangle.top/scaleFactor(),
-//                 "width" : data[i].faceRectangle.width/scaleFactor()
-//             });
-//         $('#result').append(face);
-//         console.log ("scale = " + scaleFactor())
-//     }
-// }
-
-// //return Img String to use
-// function returnImgString (person) {
-//     return 'img/'+returnEmotion(person.scores)+'.png';
-// }
-
-// //return closest emotion value
-// function returnEmotion (scores) {
-//     var max = Math.max.apply(null,Object.keys(scores).map(function(x){ return scores[x] }));
-//     var emotion = Object.keys(scores).filter(function(x){ return scores[x] == max; })[0];
-//     return emotion;
-// }
