@@ -88,43 +88,12 @@ function audioOutputVision(data) {
 // Audio Output FaceData
 function audioOutputFace(data) {
     if (data.length > 0) {
-        // TODO for Dani
-        // Hier aus dem data object (output von microsoft) einen Satz bilden, und den an die starteRednerliste schicken
-        // starteRednerliste('Here is the english output sentence for Microsoft Face API Object Response');
 
-        // Example
-        if (data.length > 1) {
-            starteRednerliste('There are ' + data.length + ' people visible on this picture.');
-
-            for (var i = 0; i < data.length; i++) {
-                starteRednerliste('Person ' + (i + 1) + ' is probably ' + Math.round(data[i].faceAttributes.age) + ' years old.');
-            }
-        } else {
-            // One person
-            console.log(data[0].faceAttributes);
-            var fa = data[0].faceAttributes;
-            var gender = fa.gender;
-            var speechString = 'There is one ' + gender + ' person visible on this picture. ';
-
-            // Gender
-            (gender == 'male') ? speechString += 'He' : speechString += 'She';
-
-            // Age, glasses
-            speechString += ' is propably ' + Math.round(fa.age) + ' years old and wears ';
-            (fa.glasses === 'NoGlasses') ? speechString += 'no glasses.' : speechString += 'glasses. ';
-
-            // Hair
-            speechString += 'I am ' + fa.hair.hairColor[0].confidence * 100 + ' percent sure that ';
-            (gender == 'male') ? speechString += 'he' : speechString += 'she';
-            speechString += ' has ' + fa.hair.hairColor[0].color + ' hair. ';
-
-            // Emotion
-            var emotion = getHighestValueFromObject(fa.emotion);
-            speechString += 'The person\'s most expressed emotion is ' + emotion.split(';')[0] + '.';
-
-            // Finally start!
-            starteRednerliste(speechString);
-        }
+        // Build String of the image description which gets spoken via the text2speech API
+        starteRednerliste(getFaceDescriptionStringFromData(data));
+    } else {
+        // No person
+        starteRednerliste('There are no persons in this picture.');
     }
 }
 
@@ -185,4 +154,58 @@ function sendToMicrosoftFace(pictureLink) {
 function getHighestValueFromObject(obj) {
     var key = Object.keys(obj).reduce(function (a, b) { return obj[a] > obj[b] ? a : b });
     return key.toString() + ';' + Math.floor(obj[key] * 100);
+}
+
+// Retuns string from data obj
+function getFaceDescriptionStringFromData(data) {
+
+    var speechString = '';
+    var numOfPeople = data.length;
+    var isSinglePerson;
+    if (numOfPeople === 1) {
+        speechString += 'There is one ' + data[0].faceAttributes.gender + ' person visible in this picture. ';
+        isSinglePerson = true;
+    } else {
+        speechString += 'There are ' + numOfPeople + ' persons visible in this picture. ';
+        isSinglePerson = false;
+    }
+
+    for (var i = 0; i < data.length; i++) {
+
+        console.log(data[i]);
+        var fa = data[i].faceAttributes;
+        var gender = fa.gender;
+
+        // Gender
+        if (isSinglePerson) {
+            (gender == 'male') ? speechString += 'He is' : speechString += 'She is';
+        } else {
+            speechString += 'Person ' + (i + 1) + ' is ' + gender + ',';
+        }
+
+        // Age, glasses
+        speechString += ' propably ' + Math.round(fa.age) + ' years old and wears ';
+        (fa.glasses === 'NoGlasses') ? speechString += 'no glasses.' : speechString += fa.glasses + '. ';
+
+        // Hair
+        (gender == 'male') ? speechString += 'He' : speechString += 'She';
+        if (fa.hair.bald > 0.8) {
+            speechString += ' is bald';
+        } else {
+            speechString += ' has ' + fa.hair.hairColor[i].color + ' hair';
+        }
+
+        // Beard
+        if(gender == 'male') {
+            speechString += ' and has a beard-level of ' + fa.facialHair.beard * 100 + ' percent. ';
+        } else {
+            speechString += '. ';
+        }
+
+        // Emotion
+        var emotion = getHighestValueFromObject(fa.emotion);
+        speechString += 'The person\'s most expressed emotion is ' + emotion.split(';')[0] + '.';
+    }
+
+    return speechString;
 }
