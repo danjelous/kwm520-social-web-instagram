@@ -57,11 +57,12 @@ function analyzeImg(pictureLink, caption, comments, likes) {
     }
 
     // Und ab geht die Post zur face+emotion detection
-    var q1 = sendToMicrosoftVision(pictureLink);
+    //var q1 = sendToMicrosoftVision(pictureLink);
     var q2 = sendToMicrosoftFace(pictureLink);
 
     // wenn die Herren fertig sind, dann starte die rednerliste
-    $.when(q1, q2).then(function (result) {
+    // $.when(q1, q2).then(function (result) {
+    $.when(q2).then(function (result) {
         responsiveVoice.speak(rednerliste);
         rednerliste = '';
     });
@@ -73,7 +74,6 @@ function audioOutputVision(data) {
         // TODO for Dani
         // Hier aus dem data object (output von microsoft) einen Satz bilden, und den an die starteRednerliste schicken
         //starteRednerliste('Here is the english output sentence for Microsoft Vision API Object Response');
-        starteRednerliste('The Microsoft Vision API describes');
 
         // Example
         var keywordliste = '';
@@ -91,23 +91,33 @@ function audioOutputFace(data) {
         // TODO for Dani
         // Hier aus dem data object (output von microsoft) einen Satz bilden, und den an die starteRednerliste schicken
         // starteRednerliste('Here is the english output sentence for Microsoft Face API Object Response');
-        console.log('FaceData output:');
-        console.log(data);
 
         // Example
-        switch (data.length > 1) {
-            case true:
-                starteRednerliste('There are ' + data.length + ' people visible on this picture.');
-                break;
-            case false:
-                starteRednerliste('There is 1 person visible on this picture.');
-                break;
-            default:
-                break;
-        }
+        if (data.length > 1) {
+            starteRednerliste('There are ' + data.length + ' people visible on this picture.');
+            
+            for (var i = 0; i < data.length; i++) {
+                starteRednerliste('Person ' + (i + 1) + ' is probably ' + Math.round(data[i].faceAttributes.age) + ' years old.');
+            }
+        } else {
+            // One person
+            console.log(data[0].faceAttributes);
+            var fa = data[0].faceAttributes;
+            var gender = fa.gender;
+            var speechString = 'There is one ' + gender + ' person visible on this picture. ';
+            
+            // Gender
+            (gender == 'male') ? speechString += 'He' : speechString += 'She';
 
-        for (var i = 0; i < data.length; i++) {
-            starteRednerliste('Person ' + (i + 1) + ' is probably ' + Math.round(data[i].faceAttributes.age) + ' years old.');
+            // Age, glasses
+            speechString += ' is propably ' + Math.round(fa.age) + ' years old and wears ';
+            (fa.glasses === 'NoGlasses') ? speechString += 'no glasses.' :  speechString += 'glasses. ';
+
+            // Hair
+            speechString += 'I am ' + fa.hair.hairColor[0].confidence * 100 + ' percent sure that ';
+            (gender == 'male') ? speechString += 'he' : speechString += 'she';
+            speechString += ' has ' + fa.hair.hairColor[0].color + ' hair';
+            starteRednerliste(speechString);
         }
     }
 }
@@ -141,12 +151,12 @@ function sendToMicrosoftVision(pictureLink) {
 // Face API
 // Send to Microsoft API
 function sendToMicrosoftFace(pictureLink) {
-    return
-    $.ajax({
+    return $.ajax({
         url: "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure",
         beforeSend: function (xhrObj) {
             // Request headers
             xhrObj.setRequestHeader("Content-Type", "application/json");
+            //xhrObj.setRequestHeader("Content-Type", "application/octet-stream");
             xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", "dc73d0ae908646e4b863b2ca0f329ef5");
         },
         type: "POST",
