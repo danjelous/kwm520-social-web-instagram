@@ -36,7 +36,7 @@ function starteRednerliste(rede) {
 // Funktion um Daten an Microsoft zu schicken nachdem Bild geklickt wurde
 function analyzeImg(pictureLink, caption, comments, likes) {
     // initial voice output from instagram
-    if (caption) starteRednerliste('The caption of the picture is ' + caption + '.');
+    if (caption) starteRednerliste('The caption of this picture is ' + caption + '.');
     if (comments > 0) starteRednerliste('There are ' + comments + ' comments.');
     if (likes > 0) starteRednerliste('There are ' + likes + ' likes.');
 
@@ -57,6 +57,7 @@ function audioOutputVision(data) {
         // TODO for Dani
         // Hier aus dem data object (output von microsoft) einen Satz bilden, und den an die starteRednerliste schicken
         //starteRednerliste('Here is the english output sentence for Microsoft Vision API Object Response');
+        starteRednerliste('The Microsoft Vision API describes');
 
         // Example
         var keywordliste = '';
@@ -74,8 +75,10 @@ function audioOutputFace(data) {
         // TODO for Dani
         // Hier aus dem data object (output von microsoft) einen Satz bilden, und den an die starteRednerliste schicken
         // starteRednerliste('Here is the english output sentence for Microsoft Face API Object Response');
+console.log('FaceData output:');
+console.log(data);
 
-        //Example
+        // Example
         switch (data.length > 1) {
             case true:
                 starteRednerliste('There are ' + data.length + ' people visible on this picture.');
@@ -138,6 +141,7 @@ function sendToMicrosoftFace(pictureLink) {
         .done(function (data) {
             console.log("##### WEBREQUEST SUCCESS: RESPONSE: #####");
             console.log(data);
+            console.log('sending to face');
             audioOutputFace(data);
         })
         .fail(function (jqXHR, textStatus, errorThrown) {
