@@ -35,10 +35,26 @@ function starteRednerliste(rede) {
 
 // Funktion um Daten an Microsoft zu schicken nachdem Bild geklickt wurde
 function analyzeImg(pictureLink, caption, comments, likes) {
-    // initial voice output from instagram
-    if (caption) starteRednerliste('The caption of this picture is ' + caption + '.');
-    if (comments > 0) starteRednerliste('There are ' + comments + ' comments.');
-    if (likes > 0) starteRednerliste('There are ' + likes + ' likes.');
+
+    // Initial voice output from instagram
+    if (caption || comments || likes) {
+        starteRednerliste('This picture has following data on instagram:');
+    }
+    if (caption) {
+        starteRednerliste('The caption of this picture is ' + caption + '.');
+
+        if (comments || likes) {
+            starteRednerliste('It has ' + comments + 'comments and ' + likes + ' likes.');
+        }
+    } else {
+        if (comments || likes) {
+            if (likes == 1) {
+                starteRednerliste('It has no caption, ' + comments + 'comments and ' + likes + ' like.');
+            } else {
+                starteRednerliste('It has no caption, ' + comments + 'comments and ' + likes + ' likes.');
+            }
+        }
+    }
 
     // Und ab geht die Post zur face+emotion detection
     var q1 = sendToMicrosoftVision(pictureLink);
@@ -75,8 +91,8 @@ function audioOutputFace(data) {
         // TODO for Dani
         // Hier aus dem data object (output von microsoft) einen Satz bilden, und den an die starteRednerliste schicken
         // starteRednerliste('Here is the english output sentence for Microsoft Face API Object Response');
-console.log('FaceData output:');
-console.log(data);
+        console.log('FaceData output:');
+        console.log(data);
 
         // Example
         switch (data.length > 1) {
@@ -112,12 +128,12 @@ function sendToMicrosoftVision(pictureLink) {
         data: '{ "url": "' + pictureLink + '" }'
     })
         .done(function (data) {
-            console.log("##### WEBREQUEST SUCCESS: RESPONSE: #####");
+            console.log("##### WEBREQUEST VISION SUCCESS: RESPONSE: #####");
             console.log(data);
             audioOutputVision(data);
         })
         .fail(function (jqXHR, textStatus, errorThrown) {
-            console.log("##### WEBREQUEST FAILED : Output: #####");
+            console.log("##### WEBREQUEST VISION FAILED : Output: #####");
             console.log(textStatus);
         });
 }
@@ -139,13 +155,12 @@ function sendToMicrosoftFace(pictureLink) {
         data: '{ "url": "' + pictureLink + '" }'
     })
         .done(function (data) {
-            console.log("##### WEBREQUEST SUCCESS: RESPONSE: #####");
+            console.log("##### WEBREQUEST FACE SUCCESS: RESPONSE: #####");
             console.log(data);
-            console.log('sending to face');
             audioOutputFace(data);
         })
         .fail(function (jqXHR, textStatus, errorThrown) {
-            console.log("##### WEBREQUEST FAILED : Output: #####");
+            console.log("##### WEBREQUEST FACE FAILED : Output: #####");
             console.log(textStatus);
         });
 }
