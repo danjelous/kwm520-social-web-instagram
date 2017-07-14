@@ -38,10 +38,10 @@ function analyzeImg(pictureLink, caption, comments, likes) {
 
     // Initial voice output from instagram
     if (caption || comments || likes) {
-        starteRednerliste('This picture has following data on instagram:');
+        starteRednerliste('This post has following data on instagram:');
     }
     if (caption) {
-        starteRednerliste('The caption of this picture is ' + caption + '.');
+        starteRednerliste('The caption of this post is ' + caption + '.');
 
         if (comments || likes) {
             starteRednerliste('It has ' + comments + 'comments and ' + likes + ' likes.');
@@ -57,31 +57,16 @@ function analyzeImg(pictureLink, caption, comments, likes) {
     }
 
     // Und ab geht die Post zur face+emotion detection
-    //var q1 = sendToMicrosoftVision(pictureLink);
-    var q2 = sendToMicrosoftFace(pictureLink);
-
-    // wenn die Herren fertig sind, dann starte die rednerliste
-    // $.when(q1, q2).then(function (result) {
-    $.when(q2).then(function (result) {
-        responsiveVoice.speak(rednerliste);
-        rednerliste = '';
-    });
+    var q1 = sendToMicrosoftVision(pictureLink);
 }
 
 // Audio Output VisionData
 function audioOutputVision(data) {
     if (data != null) {
-        // TODO for Dani
-        // Hier aus dem data object (output von microsoft) einen Satz bilden, und den an die starteRednerliste schicken
-        //starteRednerliste('Here is the english output sentence for Microsoft Vision API Object Response');
 
-        // Example
-        var keywordliste = '';
-        for (var i = 0; i < data.tags.length; i++) {
-            keywordliste = keywordliste + data.tags[i].name + '. ';
-            if (i == 5) break;
-        }
-        if (keywordliste) starteRednerliste('The Picture can be described by keywords like: ' + keywordliste);
+        // In addition to the description WHO is present in the picture describe
+        // WHAT is happening in the picture.
+        starteRednerliste(' In this picture you see ' + data.description.captions[0].text + '. ');
     }
 }
 
@@ -92,13 +77,13 @@ function audioOutputFace(data) {
         // Build String of the image description which gets spoken via the text2speech API
         starteRednerliste(getFaceDescriptionStringFromData(data));
     } else {
+
         // No person
         starteRednerliste('There are no persons in this picture.');
     }
 }
 
-// Vision API
-// Send to Microsoft API
+// Send to Microsoft Vision API
 function sendToMicrosoftVision(pictureLink) {
     return $.ajax({
         url: "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Categories,Tags,Description,Faces,ImageType,Color,Adult",
@@ -116,6 +101,14 @@ function sendToMicrosoftVision(pictureLink) {
             console.log("##### WEBREQUEST VISION SUCCESS: RESPONSE: #####");
             console.log(data);
             audioOutputVision(data);
+            var q2 = sendToMicrosoftFace(pictureLink);
+
+            // Output Audio
+            $.when(q2).then(function (result) {
+
+                responsiveVoice.speak(rednerliste);
+                rednerliste = '';
+            });
         })
         .fail(function (jqXHR, textStatus, errorThrown) {
             console.log("##### WEBREQUEST VISION FAILED : Output: #####");
@@ -161,18 +154,10 @@ function getFaceDescriptionStringFromData(data) {
 
     var speechString = '';
     var numOfPeople = data.length;
-    var isSinglePerson;
-    if (numOfPeople === 1) {
-        speechString += 'There is one ' + data[0].faceAttributes.gender + ' person visible in this picture. ';
-        isSinglePerson = true;
-    } else {
-        speechString += 'There are ' + numOfPeople + ' persons visible in this picture. ';
-        isSinglePerson = false;
-    }
+    var isSinglePerson = (numOfPeople === 1) ? true : false;
 
     for (var i = 0; i < data.length; i++) {
 
-        console.log(data[i]);
         var fa = data[i].faceAttributes;
         var gender = fa.gender;
 
@@ -196,7 +181,7 @@ function getFaceDescriptionStringFromData(data) {
         }
 
         // Beard
-        if(gender == 'male') {
+        if (gender == 'male') {
             speechString += ' and has a beard-level of ' + fa.facialHair.beard * 100 + ' percent. ';
         } else {
             speechString += '. ';
