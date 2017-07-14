@@ -57,7 +57,7 @@ function audioOutputVision(data) {
         // TODO for Dani
         // Hier aus dem data object (output von microsoft) einen Satz bilden, und den an die starteRednerliste schicken
         //starteRednerliste('Here is the english output sentence for Microsoft Vision API Object Response');
-debugger;
+
         // Example
         var keywordliste = '';
         for (var i = 0; i < data.tags.length; i++) {
@@ -94,68 +94,54 @@ function audioOutputFace(data) {
 }
 
 // Vision API
-// send to microsoft api
-
+// Send to Microsoft API
 function sendToMicrosoftVision(pictureLink) {
     return $.ajax({
         url: "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Categories,Tags,Description,Faces,ImageType,Color,Adult",
         beforeSend: function (xhrObj) {
             // Request headers
             xhrObj.setRequestHeader("Content-Type", "application/json");
-            //xhrObj.setRequestHeader("Content-Type", "application/octet-stream");
             xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", "1e040e58d4294bc6b6b075816d863a13");
         },
         type: "POST",
         crossDomain: true,
         processData: false,
-        //dataType: 'jsonp',
-        // Request body
-        //data: imgStream,
         data: '{ "url": "' + pictureLink + '" }'
     })
         .done(function (data) {
             console.log("##### WEBREQUEST SUCCESS: RESPONSE: #####");
             console.log(data);
             audioOutputVision(data);
-            //$('#overlay').css('display','none');
-            //draw(data);
         })
         .fail(function (jqXHR, textStatus, errorThrown) {
             console.log("##### WEBREQUEST FAILED : Output: #####");
             console.log(textStatus);
-            //$('#overlay').css('display','none');
         });
 }
 
 // Face API
-// send to microsoft api
+// Send to Microsoft API
 function sendToMicrosoftFace(pictureLink) {
-    return $.ajax({
+    return
+    $.ajax({
         url: "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure",
         beforeSend: function (xhrObj) {
             // Request headers
             xhrObj.setRequestHeader("Content-Type", "application/json");
-            //xhrObj.setRequestHeader("Content-Type", "application/octet-stream");
             xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", "dc73d0ae908646e4b863b2ca0f329ef5");
         },
         type: "POST",
         crossDomain: true,
         processData: false,
-        //dataType: 'jsonp',
-        // Request body
-        //data: imgStream,
         data: '{ "url": "' + pictureLink + '" }'
     })
         .done(function (data) {
             console.log("##### WEBREQUEST SUCCESS: RESPONSE: #####");
             console.log(data);
             audioOutputFace(data);
-            //$('#overlay').css('display','none');
-            //draw(data);
         })
         .fail(function (jqXHR, textStatus, errorThrown) {
             console.log("##### WEBREQUEST FAILED : Output: #####");
             console.log(textStatus);
-            //$('#overlay').css('display','none');
         });
 }
