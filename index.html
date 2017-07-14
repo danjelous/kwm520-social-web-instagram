@@ -4,54 +4,22 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link href="css/styles.css" rel="stylesheet">
 	<title>Social Web Prototype - Insta2Speech</title>
-	<style>
-		body {
-			padding: 30px;
-			font-family: 'Roboto', sans-serif;
-			background-color: salmon;
-		}
-		h1, h2 {
-			text-align: center;
-			margin-bottom: 40px;
-		}
-		#instafeed {
-			width: 100%;
-    		text-align: center;
-		}
-		.picture {
-			margin-top: 20px;
-    		margin-bottom: 20px;
-		}
-		img {
-			width: 80%;
-    		max-width: 500px;
-			border-radius:11%;
-		}
-		img:hover {
-			-moz-transform: scale(1.05);
-  			-webkit-transform: scale(1.05);
-  			transform: scale(1.05);
-		}
-	</style>
 </head>
 
-<body>
-	<!-- container for instafeed -->
+<body class="overlay">
+	<!-- Container for instafeed -->
 	<h1>Instagramfeed from account 'fak30r'</h1>
 	<h2>Click on Picture and wait some secounds to hear output</h2>
 	<div id="instafeed">
 	</div>
 
-	<!-- alle schönen skripts die wir brauchen -->
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
 	 crossorigin="anonymous"></script>
 	<script src="js/instafeed.min.js"></script>
 	<script src="js/scripts.js"></script>
 	<script src="js/responsivevoice.js"></script>
-	<!-- <script src="https://code.responsivevoice.org/responsivevoice.js"></script>-->
-	<!-- <script src='//vws.responsivevoice.com/v/e?key=o92f27qD'></script> -->
-
 </body>
 
 </html>
