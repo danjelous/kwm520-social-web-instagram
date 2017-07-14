@@ -95,7 +95,7 @@ function audioOutputFace(data) {
         // Example
         if (data.length > 1) {
             starteRednerliste('There are ' + data.length + ' people visible on this picture.');
-            
+
             for (var i = 0; i < data.length; i++) {
                 starteRednerliste('Person ' + (i + 1) + ' is probably ' + Math.round(data[i].faceAttributes.age) + ' years old.');
             }
@@ -105,18 +105,24 @@ function audioOutputFace(data) {
             var fa = data[0].faceAttributes;
             var gender = fa.gender;
             var speechString = 'There is one ' + gender + ' person visible on this picture. ';
-            
+
             // Gender
             (gender == 'male') ? speechString += 'He' : speechString += 'She';
 
             // Age, glasses
             speechString += ' is propably ' + Math.round(fa.age) + ' years old and wears ';
-            (fa.glasses === 'NoGlasses') ? speechString += 'no glasses.' :  speechString += 'glasses. ';
+            (fa.glasses === 'NoGlasses') ? speechString += 'no glasses.' : speechString += 'glasses. ';
 
             // Hair
             speechString += 'I am ' + fa.hair.hairColor[0].confidence * 100 + ' percent sure that ';
             (gender == 'male') ? speechString += 'he' : speechString += 'she';
-            speechString += ' has ' + fa.hair.hairColor[0].color + ' hair';
+            speechString += ' has ' + fa.hair.hairColor[0].color + ' hair. ';
+
+            // Emotion
+            var emotion = getHighestValueFromObject(fa.emotion);
+            speechString += 'The person\'s most expressed emotion is ' + emotion.split(';')[0] + '.';
+
+            // Finally start!
             starteRednerliste(speechString);
         }
     }
@@ -173,4 +179,10 @@ function sendToMicrosoftFace(pictureLink) {
             console.log("##### WEBREQUEST FACE FAILED : Output: #####");
             console.log(textStatus);
         });
+}
+
+// Return the most propable emotion
+function getHighestValueFromObject(obj) {
+    var key = Object.keys(obj).reduce(function (a, b) { return obj[a] > obj[b] ? a : b });
+    return key.toString() + ';' + Math.floor(obj[key] * 100);
 }
