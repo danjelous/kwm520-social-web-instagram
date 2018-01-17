@@ -86,31 +86,36 @@ function audioOutputFace(data) {
 // Send to Microsoft Vision API
 function sendToMicrosoftVision(pictureLink) {
     return $.ajax({
-        url: "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Categories,Tags,Description,Faces,ImageType,Color,Adult",
-        beforeSend: function (xhrObj) {
-            // Request headers
-            xhrObj.setRequestHeader("Content-Type", "application/json");
-            xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", "1e040e58d4294bc6b6b075816d863a13");
-        },
-        type: "POST",
-        crossDomain: true,
-        processData: false,
-        data: '{ "url": "' + pictureLink + '" }'
-    })
-        .done(function (data) {
+            url: "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0/analyze?visualFeatures=Categories,Tags,Description,Faces,ImageType,Color,Adult",
+            beforeSend: function(xhrObj) {
+                // Request headers
+                xhrObj.setRequestHeader("Content-Type", "application/json");
+
+                // OLD from Fabian
+                //xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", "1e040e58d4294bc6b6b075816d863a13");
+
+                // New fresh one
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", "f9b8fbc8fd314bd183f21026c11ea69b");
+            },
+            type: "POST",
+            crossDomain: true,
+            processData: false,
+            data: '{ "url": "' + pictureLink + '" }'
+        })
+        .done(function(data) {
             console.log("##### WEBREQUEST VISION SUCCESS: RESPONSE: #####");
             console.log(data);
             audioOutputVision(data);
             var q2 = sendToMicrosoftFace(pictureLink);
 
             // Output Audio
-            $.when(q2).then(function (result) {
+            $.when(q2).then(function(result) {
 
                 responsiveVoice.speak(rednerliste);
                 rednerliste = '';
             });
         })
-        .fail(function (jqXHR, textStatus, errorThrown) {
+        .fail(function(jqXHR, textStatus, errorThrown) {
             console.log("##### WEBREQUEST VISION FAILED : Output: #####");
             console.log(textStatus);
         });
@@ -120,24 +125,28 @@ function sendToMicrosoftVision(pictureLink) {
 // Send to Microsoft API
 function sendToMicrosoftFace(pictureLink) {
     return $.ajax({
-        url: "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure",
-        beforeSend: function (xhrObj) {
-            // Request headers
-            xhrObj.setRequestHeader("Content-Type", "application/json");
-            //xhrObj.setRequestHeader("Content-Type", "application/octet-stream");
-            xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", "dc73d0ae908646e4b863b2ca0f329ef5");
-        },
-        type: "POST",
-        crossDomain: true,
-        processData: false,
-        data: '{ "url": "' + pictureLink + '" }'
-    })
-        .done(function (data) {
+            url: "https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure",
+            beforeSend: function(xhrObj) {
+                // Request headers
+                xhrObj.setRequestHeader("Content-Type", "application/json");
+
+                //OLD API KEY
+                // xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", "dc73d0ae908646e4b863b2ca0f329ef5");
+
+                // Sexy new API Key
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", "7e066667ec5641108502da92df558515");
+            },
+            type: "POST",
+            crossDomain: true,
+            processData: false,
+            data: '{ "url": "' + pictureLink + '" }'
+        })
+        .done(function(data) {
             console.log("##### WEBREQUEST FACE SUCCESS: RESPONSE: #####");
             console.log(data);
             audioOutputFace(data);
         })
-        .fail(function (jqXHR, textStatus, errorThrown) {
+        .fail(function(jqXHR, textStatus, errorThrown) {
             console.log("##### WEBREQUEST FACE FAILED : Output: #####");
             console.log(textStatus);
         });
@@ -145,7 +154,7 @@ function sendToMicrosoftFace(pictureLink) {
 
 // Return the most propable emotion
 function getHighestValueFromObject(obj) {
-    var key = Object.keys(obj).reduce(function (a, b) { return obj[a] > obj[b] ? a : b });
+    var key = Object.keys(obj).reduce(function(a, b) { return obj[a] > obj[b] ? a : b });
     return key.toString() + ';' + Math.floor(obj[key] * 100);
 }
 
@@ -163,17 +172,17 @@ function getFaceDescriptionStringFromData(data) {
 
         // Gender
         if (isSinglePerson) {
-            (gender == 'male') ? speechString += 'He is' : speechString += 'She is';
+            (gender == 'male') ? speechString += 'He is': speechString += 'She is';
         } else {
             speechString += 'Person ' + (i + 1) + ' is ' + gender + ',';
         }
 
         // Age, glasses
         speechString += ' propably ' + Math.round(fa.age) + ' years old and wears ';
-        (fa.glasses === 'NoGlasses') ? speechString += 'no glasses.' : speechString += fa.glasses + '. ';
+        (fa.glasses === 'NoGlasses') ? speechString += 'no glasses.': speechString += fa.glasses + '. ';
 
         // Hair
-        (gender == 'male') ? speechString += 'He' : speechString += 'She';
+        (gender == 'male') ? speechString += 'He': speechString += 'She';
         if (fa.hair.bald > 0.8) {
             speechString += ' is bald';
         } else {
